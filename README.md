@@ -17,7 +17,30 @@ This guide covers a complete deployment/startup flow on Windows, including:
 
 ---
 
-## 1) Clone and Build
+## 1) Install Rust (Windows)
+
+If Rust is not installed, install it first:
+
+```powershell
+winget install --id Rustlang.Rustup -e
+```
+
+After installation, **close and reopen** PowerShell, then verify:
+
+```powershell
+rustc --version
+cargo --version
+```
+
+If `cargo` is still not found in the current session, temporarily patch PATH:
+
+```powershell
+$env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
+```
+
+---
+
+## 2) Clone and Build
 
 ```powershell
 git clone <your-repository-url>
@@ -31,7 +54,7 @@ Build output:
 
 ---
 
-## 2) Configure Environment (Recommended: `.env`)
+## 3) Configure Environment (Recommended: `.env`)
 
 `claw` reads a `.env` file from the **current working directory** where you launch `claw.exe`.
 
@@ -59,7 +82,7 @@ Notes:
 
 ---
 
-## 3) Start in Interactive Mode
+## 4) Start in Interactive Mode
 
 ### DeepSeek V4 Pro + reasoning + tools (recommended)
 
@@ -84,7 +107,7 @@ E:\claw-code-main\claw-code-main\rust\target\debug\claw.exe --model "xai/deepsee
 
 ---
 
-## 4) Reasoning Mode Behavior
+## 5) Reasoning Mode Behavior
 
 - Default behavior: reasoning is off unless enabled
 - Enable reasoning:
@@ -98,7 +121,7 @@ Remove-Item Env:\CLAW_DEEPSEEK_V4_REASONING -ErrorAction SilentlyContinue
 
 ---
 
-## 5) Health Checks
+## 6) Health Checks
 
 ```powershell
 cd E:\claw-code-main\claw-code-main\rust
@@ -108,7 +131,7 @@ cd E:\claw-code-main\claw-code-main\rust
 
 ---
 
-## 6) Troubleshooting
+## 7) Troubleshooting
 
 - **`missing_credentials` asks for Anthropic key while using DeepSeek**
   - Usually `.env` encoding issue (BOM). Recreate `.env` with UTF-8 no BOM (section 2).
@@ -128,7 +151,7 @@ cd E:\claw-code-main\claw-code-main\rust
 
 ---
 
-## 7) Security Notes
+## 8) Security Notes
 
 - Never commit real API keys.
 - Add `.env` to `.gitignore`.
