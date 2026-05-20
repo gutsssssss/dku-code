@@ -169,3 +169,24 @@ $env:Path = "C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32;$env
 
 <REPO_ROOT>\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" --reasoning-effort high --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
 ```
+
+---
+
+## Quick Start (macOS Copy/Paste)
+
+```bash
+cd <REPO_ROOT>/rust
+cargo build --workspace
+
+cd <WORK_DIR>
+export OPENAI_API_KEY="<YOUR_DEEPSEEK_API_KEY>"
+export OPENAI_BASE_URL="https://api.deepseek.com"
+export CLAW_DEEPSEEK_V4_REASONING="1"
+
+<REPO_ROOT>/rust/target/debug/claw --model "xai/deepseek-v4-pro" --reasoning-effort high --allowedTools read_file,write_file,edit_file,glob_search,grep_search
+```
+
+Notes:
+
+- On macOS, the binary path is `target/debug/claw` (no `.exe`).
+- `PowerShell` is excluded in the default macOS tool list unless `pwsh` is installed.
