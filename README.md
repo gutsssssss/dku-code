@@ -1,7 +1,7 @@
 # DKU Code
 
 DKU Code is a CLI agent runtime based on `claw`.
-This guide covers a complete deployment/startup flow on Windows, including:
+This guide covers a complete deployment/startup flow on Windows and macOS, including:
 
 - `deepseek-v4-pro` usage
 - reasoning mode toggle
@@ -16,12 +16,14 @@ Path placeholders used in this document:
 
 - Git
 - Rust toolchain (`rustup`, `cargo`, `rustc`)
-- Windows PowerShell
+- PowerShell (Windows) or zsh/bash (macOS)
 - A valid DeepSeek API key
 
 ---
 
-## 1) Install Rust (Windows)
+## 1) Install Rust
+
+### Windows
 
 If Rust is not installed, install it first:
 
@@ -42,6 +44,17 @@ If `cargo` is still not found in the current session, temporarily patch PATH:
 $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
 ```
 
+### macOS
+
+Install Rust via rustup:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+rustc --version
+cargo --version
+```
+
 ---
 
 ## 2) Clone and Build
@@ -52,15 +65,22 @@ cd <REPO_ROOT>\rust
 cargo build --workspace
 ```
 
+```bash
+git clone <your-repository-url>
+cd <REPO_ROOT>/rust
+cargo build --workspace
+```
+
 Build output:
 
 - Windows binary: `<REPO_ROOT>\rust\target\debug\claw.exe`
+- macOS binary: `<REPO_ROOT>/rust/target/debug/claw`
 
 ---
 
 ## 3) Configure Environment Variables (Quick Start style)
 
-Set these variables in the same PowerShell session before launching `claw.exe`:
+Set these variables in the same shell session before launching `claw`:
 
 ```powershell
 $env:OPENAI_API_KEY = "<YOUR_DEEPSEEK_API_KEY>"
@@ -69,12 +89,18 @@ $env:CLAW_DEEPSEEK_V4_REASONING = "1"
 $env:Path = "C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32;$env:Path"
 ```
 
+```bash
+export OPENAI_API_KEY="<YOUR_DEEPSEEK_API_KEY>"
+export OPENAI_BASE_URL="https://api.deepseek.com"
+export CLAW_DEEPSEEK_V4_REASONING="1"
+```
+
 Notes:
 
 - `OPENAI_API_KEY`: required
 - `OPENAI_BASE_URL`: required for DeepSeek (`https://api.deepseek.com`)
 - `CLAW_DEEPSEEK_V4_REASONING`: optional (`1` to enable, unset/`0` to disable)
-- PATH patch ensures PowerShell tool calls can be discovered
+- Windows: PATH patch ensures PowerShell tool calls can be discovered
 
 ---
 
@@ -87,6 +113,11 @@ cd <WORK_DIR>
 <REPO_ROOT>\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" --reasoning-effort high --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
 ```
 
+```bash
+cd <WORK_DIR>
+<REPO_ROOT>/rust/target/debug/claw --model "xai/deepseek-v4-pro" --reasoning-effort high --allowedTools read_file,write_file,edit_file,glob_search,grep_search
+```
+
 ### Fast model switch (V4 Flash)
 
 ```powershell
@@ -94,11 +125,21 @@ cd <WORK_DIR>
 <REPO_ROOT>\rust\target\debug\claw.exe --model "xai/deepseek-v4-flash" --reasoning-effort low --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
 ```
 
+```bash
+cd <WORK_DIR>
+<REPO_ROOT>/rust/target/debug/claw --model "xai/deepseek-v4-flash" --reasoning-effort low --allowedTools read_file,write_file,edit_file,glob_search,grep_search
+```
+
 ### One-shot prompt mode
 
 ```powershell
 cd <WORK_DIR>
 <REPO_ROOT>\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" prompt "Hello"
+```
+
+```bash
+cd <WORK_DIR>
+<REPO_ROOT>/rust/target/debug/claw --model "xai/deepseek-v4-pro" prompt "Hello"
 ```
 
 ---
@@ -115,6 +156,10 @@ cd <WORK_DIR>
 Remove-Item Env:\CLAW_DEEPSEEK_V4_REASONING -ErrorAction SilentlyContinue
 ```
 
+```bash
+unset CLAW_DEEPSEEK_V4_REASONING
+```
+
 ---
 
 ## 6) Health Checks
@@ -125,18 +170,25 @@ cd <REPO_ROOT>\rust
 .\target\debug\claw.exe doctor
 ```
 
+```bash
+cd <REPO_ROOT>/rust
+./target/debug/claw --help
+./target/debug/claw doctor
+```
+
 ---
 
 ## 7) Troubleshooting
 
 - **`missing_credentials` asks for Anthropic key while using DeepSeek**
   - Re-run the environment variable setup block in section 3.
-  - Confirm you are launching `claw.exe` in the same PowerShell session where variables were set.
+  - Confirm you are launching `claw` in the same shell session where variables were set.
 
 - **`PowerShell executable not found`**
   - Rebuild to latest code (`cargo build --workspace`), which fixes Windows shell detection.
   - Ensure PowerShell is on PATH in your current terminal:
     `C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32`
+  - On macOS, remove `PowerShell` from `--allowedTools` unless `pwsh` is installed.
 
 - **`api returned 400 ... reasoning_content ... must be passed back`**
   - Use the latest build from this repository (reasoning continuity fixes are included).
