@@ -6,6 +6,9 @@
 ## Goal
 - Run `claw` on Windows with DeepSeek API.
 - Enable tool usage in chat mode (especially PowerShell-based operations).
+- Use path placeholders in docs:
+  - `<REPO_ROOT>` for repository root
+  - `<WORK_DIR>` for runtime working directory
 
 ## Completed
 - Installed Rust toolchain successfully on Windows.
@@ -46,7 +49,7 @@
 ## Current Working Command
 
 ```powershell
-cd E:\claw-code-main\claw-code-main\rust
+cd <REPO_ROOT>\rust
 .\target\debug\claw.exe --model "xai/deepseek-v4-flash" --reasoning-effort low --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
 ```
 
@@ -56,7 +59,7 @@ cd E:\claw-code-main\claw-code-main\rust
 - Result:
   - PowerShell tool executed successfully.
   - Folder was created at:
-    - `E:\claw-code-main\claw-code-main\rust\whp2`
+    - `<REPO_ROOT>\rust\whp2`
 - No `reasoning_content` 400 in the final run.
 
 ## Notes

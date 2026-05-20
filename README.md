@@ -8,6 +8,11 @@ This guide covers a complete deployment/startup flow on Windows, including:
 - `.env` persistence
 - tool-enabled chat mode
 
+Path placeholders used in this document:
+
+- `<REPO_ROOT>`: local path where this repository is cloned
+- `<WORK_DIR>`: working directory where you run `claw` sessions
+
 ## Prerequisites
 
 - Git
@@ -44,13 +49,13 @@ $env:Path = "$env:USERPROFILE\.cargo\bin;$env:Path"
 
 ```powershell
 git clone <your-repository-url>
-cd E:\claw-code-main\claw-code-main\rust
+cd <REPO_ROOT>\rust
 cargo build --workspace
 ```
 
 Build output:
 
-- Windows binary: `E:\claw-code-main\claw-code-main\rust\target\debug\claw.exe`
+- Windows binary: `<REPO_ROOT>\rust\target\debug\claw.exe`
 
 ---
 
@@ -63,7 +68,7 @@ Build output:
 Run this in the directory where you will start `claw.exe`:
 
 ```powershell
-cd C:\Users\Administrator\Desktop\工作\cs207代码
+cd <WORK_DIR>
 
 $envText = @"
 OPENAI_API_KEY=<YOUR_DEEPSEEK_API_KEY>
@@ -87,22 +92,22 @@ Notes:
 ### DeepSeek V4 Pro + reasoning + tools (recommended)
 
 ```powershell
-cd C:\Users\Administrator\Desktop\工作\cs207代码
-E:\claw-code-main\claw-code-main\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" --reasoning-effort high --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
+cd <WORK_DIR>
+<REPO_ROOT>\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" --reasoning-effort high --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
 ```
 
 ### Fast model switch (V4 Flash)
 
 ```powershell
-cd C:\Users\Administrator\Desktop\工作\cs207代码
-E:\claw-code-main\claw-code-main\rust\target\debug\claw.exe --model "xai/deepseek-v4-flash" --reasoning-effort low --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
+cd <WORK_DIR>
+<REPO_ROOT>\rust\target\debug\claw.exe --model "xai/deepseek-v4-flash" --reasoning-effort low --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
 ```
 
 ### One-shot prompt mode
 
 ```powershell
-cd C:\Users\Administrator\Desktop\工作\cs207代码
-E:\claw-code-main\claw-code-main\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" prompt "Hello"
+cd <WORK_DIR>
+<REPO_ROOT>\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" prompt "Hello"
 ```
 
 ---
@@ -124,7 +129,7 @@ Remove-Item Env:\CLAW_DEEPSEEK_V4_REASONING -ErrorAction SilentlyContinue
 ## 6) Health Checks
 
 ```powershell
-cd E:\claw-code-main\claw-code-main\rust
+cd <REPO_ROOT>\rust
 .\target\debug\claw.exe --help
 .\target\debug\claw.exe doctor
 ```
@@ -162,10 +167,10 @@ cd E:\claw-code-main\claw-code-main\rust
 ## Quick Start (Windows Copy/Paste)
 
 ```powershell
-cd E:\claw-code-main\claw-code-main\rust
+cd <REPO_ROOT>\rust
 cargo build --workspace
 
-cd C:\Users\Administrator\Desktop\工作\cs207代码
+cd <WORK_DIR>
 $envText = @"
 OPENAI_API_KEY=<YOUR_DEEPSEEK_API_KEY>
 OPENAI_BASE_URL=https://api.deepseek.com
@@ -174,5 +179,5 @@ CLAW_DEEPSEEK_V4_REASONING=1
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 [System.IO.File]::WriteAllText(".\.env", $envText, $utf8NoBom)
 
-E:\claw-code-main\claw-code-main\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" --reasoning-effort high --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
+<REPO_ROOT>\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" --reasoning-effort high --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
 ```
