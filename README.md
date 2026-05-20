@@ -1,90 +1,104 @@
 # DKU Code
 
-DKU Code is a CLI agent project centered around the `claw` runtime.
-This README focuses on one thing: **how to deploy and start the project** quickly.
+DKU Code is a CLI agent runtime based on `claw`.
+This guide covers a complete deployment/startup flow on Windows, including:
 
-## What You Need
+- `deepseek-v4-pro` usage
+- reasoning mode toggle
+- `.env` persistence
+- tool-enabled chat mode
+
+## Prerequisites
 
 - Git
 - Rust toolchain (`rustup`, `cargo`, `rustc`)
-- PowerShell (Windows) or a Unix shell (macOS/Linux)
-- One model API key (for example:
-  - `OPENAI_API_KEY` for OpenAI-compatible endpoints
-  - `ANTHROPIC_API_KEY` for Anthropic)
+- Windows PowerShell
+- A valid DeepSeek API key
 
 ---
 
-## 1) Clone the Project
+## 1) Clone and Build
 
-```bash
+```powershell
 git clone <your-repository-url>
-cd claw-code-main
-```
-
----
-
-## 2) Build (Deploy) the CLI
-
-From the repository root:
-
-```bash
-cd rust
+cd E:\claw-code-main\claw-code-main\rust
 cargo build --workspace
 ```
 
 Build output:
 
-- Windows: `rust\target\debug\claw.exe`
-- macOS/Linux: `rust/target/debug/claw`
+- Windows binary: `E:\claw-code-main\claw-code-main\rust\target\debug\claw.exe`
 
 ---
 
-## 3) Configure Provider Environment Variables
+## 2) Configure Environment (Recommended: `.env`)
 
-### Option A: DeepSeek (OpenAI-compatible)
+`claw` reads a `.env` file from the **current working directory** where you launch `claw.exe`.
 
-PowerShell:
+### Create `.env` (UTF-8 without BOM, PowerShell 5 compatible)
 
-```powershell
-$env:OPENAI_API_KEY = "<YOUR_API_KEY>"
-$env:OPENAI_BASE_URL = "https://api.deepseek.com"
-Remove-Item Env:\ANTHROPIC_API_KEY -ErrorAction SilentlyContinue
-```
-
-### Option B: Anthropic
-
-PowerShell:
+Run this in the directory where you will start `claw.exe`:
 
 ```powershell
-$env:ANTHROPIC_API_KEY = "<YOUR_API_KEY>"
-Remove-Item Env:\OPENAI_API_KEY, Env:\OPENAI_BASE_URL -ErrorAction SilentlyContinue
+cd C:\Users\Administrator\Desktop\工作\cs207代码
+
+$envText = @"
+OPENAI_API_KEY=<YOUR_DEEPSEEK_API_KEY>
+OPENAI_BASE_URL=https://api.deepseek.com
+CLAW_DEEPSEEK_V4_REASONING=1
+"@
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText(".\.env", $envText, $utf8NoBom)
 ```
+
+Notes:
+
+- `OPENAI_API_KEY`: required
+- `OPENAI_BASE_URL`: required for DeepSeek (`https://api.deepseek.com`)
+- `CLAW_DEEPSEEK_V4_REASONING`: optional (`1` to enable, unset/`0` to disable)
 
 ---
 
-## 4) Start the Project
+## 3) Start in Interactive Mode
 
-### Interactive chat mode (recommended)
-
-PowerShell:
+### DeepSeek V4 Pro + reasoning + tools (recommended)
 
 ```powershell
-cd E:\claw-code-main\claw-code-main\rust
-.\target\debug\claw.exe --model "xai/deepseek-v4-flash" --reasoning-effort low --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
+cd C:\Users\Administrator\Desktop\工作\cs207代码
+E:\claw-code-main\claw-code-main\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" --reasoning-effort high --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
+```
+
+### Fast model switch (V4 Flash)
+
+```powershell
+cd C:\Users\Administrator\Desktop\工作\cs207代码
+E:\claw-code-main\claw-code-main\rust\target\debug\claw.exe --model "xai/deepseek-v4-flash" --reasoning-effort low --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
 ```
 
 ### One-shot prompt mode
 
-PowerShell:
-
 ```powershell
-cd E:\claw-code-main\claw-code-main\rust
-.\target\debug\claw.exe --model "xai/deepseek-v4-flash" prompt "Hello"
+cd C:\Users\Administrator\Desktop\工作\cs207代码
+E:\claw-code-main\claw-code-main\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" prompt "Hello"
 ```
 
 ---
 
-## 5) Basic Health Checks
+## 4) Reasoning Mode Behavior
+
+- Default behavior: reasoning is off unless enabled
+- Enable reasoning:
+  - set `CLAW_DEEPSEEK_V4_REASONING=1`
+  - use `--reasoning-effort low|medium|high`
+- Disable reasoning quickly:
+
+```powershell
+Remove-Item Env:\CLAW_DEEPSEEK_V4_REASONING -ErrorAction SilentlyContinue
+```
+
+---
+
+## 5) Health Checks
 
 ```powershell
 cd E:\claw-code-main\claw-code-main\rust
@@ -96,21 +110,29 @@ cd E:\claw-code-main\claw-code-main\rust
 
 ## 6) Troubleshooting
 
-- **`cargo` not found**
-  - Rust is not installed or PATH is not refreshed. Reopen terminal after install.
+- **`missing_credentials` asks for Anthropic key while using DeepSeek**
+  - Usually `.env` encoding issue (BOM). Recreate `.env` with UTF-8 no BOM (section 2).
+  - Confirm you launch `claw.exe` from the same directory that contains `.env`.
+
+- **`PowerShell executable not found`**
+  - Rebuild to latest code (`cargo build --workspace`), which fixes Windows shell detection.
+  - Ensure PowerShell is on PATH in your current terminal:
+    `C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32`
+
+- **`api returned 400 ... reasoning_content ... must be passed back`**
+  - Use the latest build from this repository (reasoning continuity fixes are included).
+  - Keep reasoning enabled via `CLAW_DEEPSEEK_V4_REASONING=1`.
+
 - **`failed to remove ... claw.exe (os error 5)`**
-  - A running `claw.exe` process is locking the binary. Close it and rebuild.
-- **PowerShell tool not found**
-  - Ensure `powershell` is in PATH for the current session.
-- **API 400 from provider**
-  - Verify model name, base URL, and API key match the target provider.
+  - Existing `claw.exe` process is still running; close it or kill process, then rebuild.
 
 ---
 
 ## 7) Security Notes
 
 - Never commit real API keys.
-- If a key is exposed in terminal/chat history, revoke it and create a new one.
+- Add `.env` to `.gitignore`.
+- If a key is exposed in chat/terminal history, revoke and rotate it immediately.
 
 ---
 
@@ -119,8 +141,15 @@ cd E:\claw-code-main\claw-code-main\rust
 ```powershell
 cd E:\claw-code-main\claw-code-main\rust
 cargo build --workspace
-$env:OPENAI_API_KEY = "<YOUR_API_KEY>"
-$env:OPENAI_BASE_URL = "https://api.deepseek.com"
-Remove-Item Env:\ANTHROPIC_API_KEY -ErrorAction SilentlyContinue
-.\target\debug\claw.exe --model "xai/deepseek-v4-flash" --reasoning-effort low --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
+
+cd C:\Users\Administrator\Desktop\工作\cs207代码
+$envText = @"
+OPENAI_API_KEY=<YOUR_DEEPSEEK_API_KEY>
+OPENAI_BASE_URL=https://api.deepseek.com
+CLAW_DEEPSEEK_V4_REASONING=1
+"@
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText(".\.env", $envText, $utf8NoBom)
+
+E:\claw-code-main\claw-code-main\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" --reasoning-effort high --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
 ```
