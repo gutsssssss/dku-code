@@ -5,7 +5,6 @@ This guide covers a complete deployment/startup flow on Windows, including:
 
 - `deepseek-v4-pro` usage
 - reasoning mode toggle
-- `.env` persistence
 - tool-enabled chat mode
 
 Path placeholders used in this document:
@@ -59,24 +58,15 @@ Build output:
 
 ---
 
-## 3) Configure Environment (Recommended: `.env`)
+## 3) Configure Environment Variables (Quick Start style)
 
-`claw` reads a `.env` file from the **current working directory** where you launch `claw.exe`.
-
-### Create `.env` (UTF-8 without BOM, PowerShell 5 compatible)
-
-Run this in the directory where you will start `claw.exe`:
+Set these variables in the same PowerShell session before launching `claw.exe`:
 
 ```powershell
-cd <WORK_DIR>
-
-$envText = @"
-OPENAI_API_KEY=<YOUR_DEEPSEEK_API_KEY>
-OPENAI_BASE_URL=https://api.deepseek.com
-CLAW_DEEPSEEK_V4_REASONING=1
-"@
-$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-[System.IO.File]::WriteAllText(".\.env", $envText, $utf8NoBom)
+$env:OPENAI_API_KEY = "<YOUR_DEEPSEEK_API_KEY>"
+$env:OPENAI_BASE_URL = "https://api.deepseek.com"
+$env:CLAW_DEEPSEEK_V4_REASONING = "1"
+$env:Path = "C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32;$env:Path"
 ```
 
 Notes:
@@ -84,6 +74,7 @@ Notes:
 - `OPENAI_API_KEY`: required
 - `OPENAI_BASE_URL`: required for DeepSeek (`https://api.deepseek.com`)
 - `CLAW_DEEPSEEK_V4_REASONING`: optional (`1` to enable, unset/`0` to disable)
+- PATH patch ensures PowerShell tool calls can be discovered
 
 ---
 
@@ -139,8 +130,8 @@ cd <REPO_ROOT>\rust
 ## 7) Troubleshooting
 
 - **`missing_credentials` asks for Anthropic key while using DeepSeek**
-  - Usually `.env` encoding issue (BOM). Recreate `.env` with UTF-8 no BOM (section 2).
-  - Confirm you launch `claw.exe` from the same directory that contains `.env`.
+  - Re-run the environment variable setup block in section 3.
+  - Confirm you are launching `claw.exe` in the same PowerShell session where variables were set.
 
 - **`PowerShell executable not found`**
   - Rebuild to latest code (`cargo build --workspace`), which fixes Windows shell detection.
@@ -171,13 +162,10 @@ cd <REPO_ROOT>\rust
 cargo build --workspace
 
 cd <WORK_DIR>
-$envText = @"
-OPENAI_API_KEY=<YOUR_DEEPSEEK_API_KEY>
-OPENAI_BASE_URL=https://api.deepseek.com
-CLAW_DEEPSEEK_V4_REASONING=1
-"@
-$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-[System.IO.File]::WriteAllText(".\.env", $envText, $utf8NoBom)
+$env:OPENAI_API_KEY = "<YOUR_DEEPSEEK_API_KEY>"
+$env:OPENAI_BASE_URL = "https://api.deepseek.com"
+$env:CLAW_DEEPSEEK_V4_REASONING = "1"
+$env:Path = "C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32;$env:Path"
 
 <REPO_ROOT>\rust\target\debug\claw.exe --model "xai/deepseek-v4-pro" --reasoning-effort high --allowedTools PowerShell,read_file,write_file,edit_file,glob_search,grep_search
 ```
