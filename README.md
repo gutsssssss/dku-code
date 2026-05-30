@@ -60,13 +60,13 @@ cargo --version
 ## 2) Clone and Build
 
 ```powershell
-git clone <your-repository-url>
+git clone https://github.com/gutsssssss/dku-code
 cd <REPO_ROOT>\rust
 cargo build --workspace
 ```
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/gutsssssss/dku-code
 cd <REPO_ROOT>/rust
 cargo build --workspace
 ```
