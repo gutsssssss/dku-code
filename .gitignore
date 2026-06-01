@@ -5,12 +5,18 @@ archive/
 # Claude Code local artifacts
 .claude/settings.local.json
 .claude/sessions/
+**/.claude/sessions/
 # Claw Code local artifacts
 .claw/settings.local.json
 .claw/sessions/
+**/.claw/settings.local.json
+**/.claw/sessions/
 .clawhip/
 status-help.txt
 # Legacy Python port session scratch artifacts
 .port_sessions/
 
-rust/
+rust/target/
+rust/.sandbox-home/
+rust/.omc/
+rust/.clawd-todos.json
