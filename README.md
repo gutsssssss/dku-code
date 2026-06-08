@@ -3,7 +3,7 @@
 DKU Code is a CLI agent runtime based on `claw`.
 This guide covers a complete deployment/startup flow on Windows and macOS, including:
 
-- `deepseek-v4-pro` usage
+- `deepseek-v4-pro` api usage
 - reasoning mode toggle
 - tool-enabled chat mode
 
